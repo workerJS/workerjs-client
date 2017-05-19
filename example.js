@@ -1,6 +1,12 @@
 var client = require("./");
 
-client().send(function(data){
-	console.log(data);
-});
+var j = 0;
+
+for(var i = 0; i < 100; i++){
+	setTimeout(function(){
+		client().send(function(data){
+			console.log(++j);
+		});
+	}, 0);
+}
 
