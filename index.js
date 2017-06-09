@@ -1,4 +1,4 @@
-var events = require("workerjs-redis")();
+var events = require("workerjs-redis")({url: process.env.REDIS_URL || undefined});
 
 var crypto = require('crypto');
 var EventEmitter = require('events').EventEmitter;
