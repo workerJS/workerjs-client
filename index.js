@@ -1,11 +1,12 @@
-var events_sub = require("workerjs-redis")({url: process.env.REDIS_URL || undefined});
-var events_pub = require("workerjs-redis")({url: process.env.REDIS_URL || undefined});
+var events = require("workerjs-redis")({url: process.env.REDIS_URL || undefined});
+var redis = require("redis");
 
 var crypto = require('crypto');
 var EventEmitter = require('events').EventEmitter;
 
 module.exports = function(){
 	var client = {
+		_arguments: {url: process.env.REDIS_URL || undefined},
 		_eventEmitter: new EventEmitter(),
 
 		config: {
@@ -21,10 +22,12 @@ module.exports = function(){
 			client.config.uid = crypto.createHash('md5').update(JSON.stringify(client.config)).digest("hex");
 			var uid = client.config.uid;
 
-			events_pub.emit("tasks", JSON.stringify(client.config)).then(function(){
-				events_sub._client.subscribe(uid);
+			events.emit("tasks", JSON.stringify(client.config)).then(function(){
+				var rclient = redis.createClient.apply(this, client._arguments);
 
-				events_sub._client.on("message", function (channel, message) {
+				rclient.subscribe(uid);
+
+				rclient.on("message", function (channel, message) {
 					if(channel == uid){
 						client.emit(uid, JSON.parse(message))
 					}
