@@ -6,7 +6,7 @@ var EventEmitter = require('events').EventEmitter;
 
 module.exports = function(){
 	var client = {
-		_arguments: {url: process.env.REDIS_URL || undefined},
+		_arguments: [{url: process.env.REDIS_URL || undefined}],
 		_eventEmitter: new EventEmitter(),
 
 		config: {
@@ -47,6 +47,8 @@ module.exports = function(){
 	t.emit = function(name, data){
 		t._eventEmitter.emit(name, data);
 	}
+
+	console.log(client._arguments);
 
 	return t;
 }
