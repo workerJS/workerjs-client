@@ -4,7 +4,7 @@ var j = 0;
 
 for(var i = 0; i < 100; i++){
 	setTimeout(function(){
-		client().send(function(data){
+		client("task", {}).send(function(data){
 			console.log(++j);
 			console.log(data);
 		});

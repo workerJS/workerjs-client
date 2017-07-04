@@ -1,35 +1,39 @@
-var events = require("workerjs-redis")({url: process.env.REDIS_URL || undefined});
-var redis = require("redis");
+var redis = require("workerjs-redis")({url: process.env.REDIS_URL || undefined});
+
+var queue = redis.queue;
+var messaging = redis.messaging;
 
 var crypto = require('crypto');
 var EventEmitter = require('events').EventEmitter;
 
-module.exports = function(){
+module.exports = function(channel, task){
 	var client = {
-		_arguments: [{url: process.env.REDIS_URL || undefined}],
+		_queue: queue,
+		_messaging: messaging,
+
 		_eventEmitter: new EventEmitter(),
 
+		_channel: undefined,
+
 		config: {
-			task: {
-				path: "https://scontent.fbeg2-1.fna.fbcdn.net/v/t1.0-9/18485686_10211085145236151_6190539574485761440_n.jpg?oh=5bf5b10ef14f9450e941c1d250070a8f&oe=59ADF1F6"
-			},
+			task: task,
 			time: Math.floor(new Date().getTime()*1),
 			persistant: true,
 			ttl: 5
 		},
+
 		send: function(callback){
-			client.config.rand = Math.random()*100000000;
-			client.config.uid = crypto.createHash('md5').update(JSON.stringify(client.config)).digest("hex");
-			var uid = client.config.uid;
+			client.config._rand = Math.random()*100000000;
+			client.config._uid = crypto.createHash('md5').update(JSON.stringify(client.config)).digest("hex");
 
-			events.emit("tasks", JSON.stringify(client.config)).then(function(){
-				var rclient = redis.createClient.apply(this, client._arguments);
+			var uid = client.config._uid;
 
-				rclient.subscribe(uid);
+			console.log(uid);
 
-				rclient.on("message", function (channel, message) {
+			client._queue.emit(client._channel, JSON.stringify(client.config)).then(function(){
+				client._messaging.on(uid, function (channel, message) {
 					if(channel == uid){
-						client.emit(uid, JSON.parse(message))
+						client.EventEmitter.emit(uid, JSON.parse(message))
 					}
 				});
 			});
@@ -40,6 +44,8 @@ module.exports = function(){
 
 	var t = client;
 
+	t._channel = channel;
+
 	t.on = function(name, callback){
 		t._eventEmitter.on(name, callback);
 	};
@@ -47,8 +53,6 @@ module.exports = function(){
 	t.emit = function(name, data){
 		t._eventEmitter.emit(name, data);
 	}
-
-	console.log(client._arguments);
 
 	return t;
 }
