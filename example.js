@@ -1,12 +1,12 @@
 const client = require("./");
 
 let j = 0;
-let count = 2000;
+let count = 1000;
 
 //let list = [];
 
 for(i = 0; i < count; i++){
-	setTimeout(function(){
+	//setTimeout(function(){
 		let task = client("task", {});
 
 		task.send(function(data){
@@ -23,6 +23,6 @@ for(i = 0; i < count; i++){
 		});
 
 		//list.push(task.config._uid);
-	}, 0);
+	//}, 0);
 }
 
