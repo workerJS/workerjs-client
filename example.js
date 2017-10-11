@@ -1,20 +1,28 @@
 const client = require("./");
 
 let j = 0;
+let count = 2000;
 
-let list = [];
+//let list = [];
 
-for(i = 0; i < 100; i++){
+for(i = 0; i < count; i++){
 	setTimeout(function(){
 		let task = client("task", {});
 
 		task.send(function(data){
-			list = list.filter((id) => {return id != task.config._uid;});
-			console.log(++j, task.config._uid);
-			console.log(list);
+			//list = list.filter((id) => {return id != task.config._uid;});
+			if(++j % 100 == 0){
+				console.log(j, task.config._uid);
+			}
+			
+			if(j == count){
+				process.exit();
+			}
+
+			//console.log(list);
 		});
 
-		list.push(task.config._uid);
+		//list.push(task.config._uid);
 	}, 0);
 }
 
