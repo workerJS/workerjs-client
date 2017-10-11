@@ -19,7 +19,7 @@ module.exports = function(channel, task){
 			task: task,
 			time: Math.floor(new Date().getTime()*1),
 			persistant: true,
-			ttl: 5
+			ttl: 10
 		},
 
 		send: function(callback){
@@ -30,10 +30,10 @@ module.exports = function(channel, task){
 
 			console.log(uid);
 
-			client._queue.emit(client._channel, JSON.stringify(client.config)).then(function(){
-				client._messaging.on(uid, function (message) {
-					client._eventEmitter.emit(uid, message)
-				});
+			client._messaging.on(uid, function (message) {
+				client._eventEmitter.emit(uid, message)
+			}).then(function(){
+				client._queue.emit(client._channel, JSON.stringify(client.config));
 			});
 
 			client.on(uid, callback);
@@ -49,7 +49,7 @@ module.exports = function(channel, task){
 	};
 
 	t.emit = function(name, data){
-		t._eventEmitter.emit(name, data);
+		t._eventEmitter.emit(name, data, name);
 	}
 
 	return t;
