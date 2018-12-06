@@ -29,7 +29,7 @@ module.exports = function(channel, task){
 			var uid = client.config._uid;
 
 			client._messaging.on(uid, function (message) {
-				client._eventEmitter.emit(uid, message)
+				client._eventEmitter.emit(uid, message);
 			}).then(function(){
 				client._queue.emit(client._channel, JSON.stringify(client.config));
 			});

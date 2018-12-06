@@ -2,7 +2,7 @@ const client = require("./");
 
 // Config
 
-let count = 1000; // Number of instances of task to create
+let count = 100000; // Number of instances of task to create
 let debug = false; // Print uncomplete tasks
 
 // End of config
