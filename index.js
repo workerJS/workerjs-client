@@ -36,7 +36,6 @@ module.exports = function(channel, task){
 				});
 			} else {
 				client._messaging.on(uid, function (message) {
-					console.log(message);
 					client._eventEmitter.emit(uid, message);
 				}).then(function(){
 					if(client._queue instanceof Promise){
