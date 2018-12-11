@@ -1,4 +1,4 @@
-var redis = require("workerjs-redis")({url: process.env.REDIS_URL || undefined});
+var redis = require("workerjs-rabbitmq")({url: process.env.REDIS_URL || undefined});
 
 var queue = redis.queue;
 var messaging = redis.messaging;
@@ -28,13 +28,30 @@ module.exports = function(channel, task){
 
 			var uid = client.config._uid;
 
-			client._messaging.on(uid, function (message) {
-				client._eventEmitter.emit(uid, message);
-			}).then(function(){
-				client._queue.emit(client._channel, JSON.stringify(client.config));
-			});
+			if(client._messaging instanceof Promise){
+				client._messaging.then((messagingResolved) => {
+					client._messaging = messagingResolved;
 
-			client.on(uid, callback);
+					return client.send(callback);
+				});
+			} else {
+				client._messaging.on(uid, function (message) {
+					console.log(message);
+					client._eventEmitter.emit(uid, message);
+				}).then(function(){
+					if(client._queue instanceof Promise){
+						client._queue.then((queueResolved) => {
+							client._queue = queueResolved;
+
+							client._queue.emit(client._channel, JSON.stringify(client.config));
+						});
+					} else {
+						client._queue.emit(client._channel, JSON.stringify(client.config));
+					}
+				});
+
+				client.on(uid, callback);
+			}
 		}
 	}
 

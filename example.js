@@ -2,7 +2,7 @@ const client = require("./");
 
 // Config
 
-let count = 100000; // Number of instances of task to create
+let count = 100; // Number of instances of task to create
 let debug = false; // Print uncomplete tasks
 
 // End of config
@@ -12,19 +12,21 @@ if(debug){
 }
 
 let j = 0;
+let i = 0;
 
 for(i = 0; i < count; i++){
 	setTimeout(function(){
-		let task = client("task", {});
+		i = (i++ % 98) + 1;
+		let task = client("task", {username: i});
 
 		task.send(function(data){
 			if(debug){
 				list = list.filter((id) => {return id != task.config._uid;});
 			}
 
-			if(++j % 100 == 0){
-				console.log(j, task.config._uid);
-			}
+			//if(++j % 100 == 0){
+				console.log(++j, task.config._uid);
+			//}
 			
 			if(j == count){
 				process.exit();
